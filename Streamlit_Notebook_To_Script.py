@@ -1,6 +1,8 @@
 import streamlit as st
 from pathlib import Path
 import nbformat
+import sys
+import streamlit.web.bootstrap as st_bootstrap
 
 st.title("📓 Notebook → Python Script Converter")
 st.write("""
@@ -41,3 +43,4 @@ if uploaded_files:
             file_name=output_name,
             mime="text/x-python"
         )
+
