@@ -48,14 +48,9 @@ def py_to_notebook(file):
     Convert a Python script (.py) to a Jupyter Notebook (.ipynb).
 
     This function reads a Python file from a file-like object and creates a 
-    notebook in memory. It intelligently splits the script into multiple cells:
-
-    - Consecutive comment lines starting with `#` are grouped into 
-      Markdown cells, with the `#` stripped.
-    - Consecutive code lines are grouped into Code cells.
-    - Code cells are further split at double blank lines (`\n\n`) to create 
-      logical code blocks for readability.
-    - Inline comments (comments on the same line as code) remain in the code cells.
+    notebook in memory. It preserves code as a single code cell per contiguous
+    code block and converts consecutive comment lines starting with `#` into 
+    Markdown cells. Inline comments remain in the code cells.
 
     Args:
         file: A file-like object representing the Python script. The file 
@@ -84,11 +79,7 @@ def py_to_notebook(file):
         if not buffer:
             return
         if current_type == "code":
-            # Split code block further by double blank lines
-            code_text = "\n".join(buffer)
-            blocks = [b for b in code_text.split("\n\n") if b.strip()]
-            for block in blocks:
-                nb.cells.append(nbformat.v4.new_code_cell(block))
+            nb.cells.append(nbformat.v4.new_code_cell("\n".join(buffer)))
         elif current_type == "markdown":
             nb.cells.append(nbformat.v4.new_markdown_cell("\n".join(buffer)))
         buffer = []
@@ -110,7 +101,6 @@ def py_to_notebook(file):
     output_name = Path(file.name).stem + "_converted.ipynb"
     output_text = nbformat.writes(nb)
     return output_text, output_name
-
 
 if uploaded_file:
     # Checkbox to choose whether to strip markdown cells or convert to comments
